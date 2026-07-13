@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy WC_EORI / WC_EU_VAT identifiers retained for filters, meta keys, and WooCommerce report class compatibility.
+
 /**
  * WC_EU_VAT_Report_B2C_Sales class
  */
@@ -308,6 +310,7 @@ class WC_EU_VAT_Report_EU_VAT extends WC_Admin_Report {
 				$cached_results = get_transient( strtolower( get_class( $this ) . '_' . $refund_data->order_id ) );
 
 				if ( false === $cached_results ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared query; result stored in transient above/below.
 					$cached_results = $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->prefix}woocommerce_order_itemmeta AS order_itemmeta LEFT JOIN {$wpdb->prefix}woocommerce_order_items AS order_items ON order_itemmeta.order_item_id = order_items.order_item_id WHERE order_items.order_id = %d AND order_items.order_item_type = %s AND order_itemmeta.meta_key = %s", $refund_data->order_id, 'tax', 'rate_id' ) );
 
 					set_transient( strtolower( get_class( $this ) . '_' . $refund_data->order_id ), $cached_results, DAY_IN_SECONDS );
@@ -353,8 +356,22 @@ class WC_EU_VAT_Report_EU_VAT extends WC_Admin_Report {
 			<?php if ( $grouped_tax_rows ) : ?>
 				<tbody>
 					<?php
+					// Prefetch tax rates for all rate IDs in one query (avoids N+1 in the loop).
+					$rate_ids    = array_values( array_filter( array_map( 'absint', array_keys( $grouped_tax_rows ) ) ) );
+					$rates_by_id = array();
+					if ( ! empty( $rate_ids ) ) {
+						$placeholders = implode( ',', array_fill( 0, count( $rate_ids ), '%d' ) );
+						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Single prepared IN() prefetch for report; placeholders built from count of IDs.
+						$rate_rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}woocommerce_tax_rates WHERE tax_rate_id IN ({$placeholders})", ...$rate_ids ) );
+						if ( is_array( $rate_rows ) ) {
+							foreach ( $rate_rows as $rate_row ) {
+								$rates_by_id[ (int) $rate_row->tax_rate_id ] = $rate_row;
+							}
+						}
+					}
+
 					foreach ( $grouped_tax_rows as $rate_id => $tax_row ) {
-						$rate = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}woocommerce_tax_rates WHERE tax_rate_id = %d;", $rate_id ) );
+						$rate = isset( $rates_by_id[ (int) $rate_id ] ) ? $rates_by_id[ (int) $rate_id ] : null;
 
 						if ( ! is_object( $rate ) || ! in_array( $rate->tax_rate_country, WC_EU_VAT_Number::get_eu_countries(), true ) ) {
 							continue;
@@ -392,7 +409,7 @@ class WC_EU_VAT_Report_EU_VAT extends WC_Admin_Report {
 							<td class="total_row"><?php echo wc_price( $tax_row->tax_amount + $tax_row->refunded_tax_amount ); ?></td>
 						</tr>
 						<?php
-						// phpcs:enable
+						// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 					}
 					?>
 				</tbody>
@@ -407,3 +424,5 @@ class WC_EU_VAT_Report_EU_VAT extends WC_Admin_Report {
 		<?php
 	}
 }
+
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

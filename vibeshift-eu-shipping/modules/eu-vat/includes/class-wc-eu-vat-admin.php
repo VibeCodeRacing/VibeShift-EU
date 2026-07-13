@@ -210,14 +210,17 @@ class WC_EU_VAT_Admin {
 	 * Output meta box.
 	 */
 	public static function output() {
-		global $post, $theorder;
+		global $post;
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce admin order global.
+		global $theorder;
 
-		if ( ! is_object( $theorder ) ) {
-			$theorder = wc_get_order( $post->ID );
+		$order = ( is_object( $theorder ) ) ? $theorder : null;
+		if ( ! $order && $post ) {
+			$order = wc_get_order( $post->ID );
 		}
 
 		// We only need this box for EU orders.
-		if ( ! self::is_eu_order( $theorder ) ) {
+		if ( ! $order || ! self::is_eu_order( $order ) ) {
 			?>
 			<p>
 				<?php esc_html_e( 'This order is out of scope for EU VAT.', 'vibeshift-eu-shipping' ); ?>
@@ -226,7 +229,7 @@ class WC_EU_VAT_Admin {
 			return;
 		}
 
-		$data      = self::get_order_vat_data( $theorder );
+		$data      = self::get_order_vat_data( $order );
 		$countries = WC()->countries->get_countries();
 		?>
 		<table class="wc-eu-vat-table" cellspacing="0">

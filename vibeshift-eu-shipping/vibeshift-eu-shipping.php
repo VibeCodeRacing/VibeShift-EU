@@ -353,6 +353,7 @@ class WC_EORI_VAT_Number_Init {
 	 * @return void
 	 */
 	public function localization() {
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Self-distributed plugin; loads bundled /languages (Domain Path).
 		load_plugin_textdomain( 'vibeshift-eu-shipping', false, dirname( plugin_basename( WC_EORI_VAT_FILE ) ) . '/languages' );
 	}
 

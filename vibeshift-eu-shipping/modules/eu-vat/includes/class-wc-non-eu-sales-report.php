@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy WC_EORI / WC_EU_VAT identifiers retained for filters, meta keys, and WooCommerce report class compatibility.
+
 /**
  * WC_Non_EU_Sales_Report class
  */
@@ -340,9 +342,29 @@ class WC_Non_EU_Sales_Report extends WC_Admin_Report {
 				$total_refunded_tax_amount = 0;
 				$total_final_tax_amount    = 0;
 
+				// Prefetch tax rates for all numeric rate IDs in one query (avoids N+1 in the loop).
+				$rate_ids    = array();
+				foreach ( array_keys( $grouped_tax_rows ) as $maybe_rate_id ) {
+					if ( is_numeric( $maybe_rate_id ) ) {
+						$rate_ids[] = absint( $maybe_rate_id );
+					}
+				}
+				$rate_ids    = array_values( array_unique( array_filter( $rate_ids ) ) );
+				$rates_by_id = array();
+				if ( ! empty( $rate_ids ) ) {
+					$placeholders = implode( ',', array_fill( 0, count( $rate_ids ), '%d' ) );
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Single prepared IN() prefetch for report; placeholders built from count of IDs.
+					$rate_rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}woocommerce_tax_rates WHERE tax_rate_id IN ({$placeholders})", ...$rate_ids ) );
+					if ( is_array( $rate_rows ) ) {
+						foreach ( $rate_rows as $rate_row ) {
+							$rates_by_id[ (int) $rate_row->tax_rate_id ] = $rate_row;
+						}
+					}
+				}
+
 				foreach ( $grouped_tax_rows as $rate_id => $tax_row ) {
 					if ( is_numeric( $rate_id ) ) {
-						$rate = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}woocommerce_tax_rates WHERE tax_rate_id = %d;", $rate_id ) );
+						$rate = isset( $rates_by_id[ (int) $rate_id ] ) ? $rates_by_id[ (int) $rate_id ] : null;
 
 						if ( ! is_object( $rate ) ) {
 							continue;
@@ -390,7 +412,7 @@ class WC_Non_EU_Sales_Report extends WC_Admin_Report {
 						<td class="total_row"><?php echo wc_price( $tax_row->tax_amount + $tax_row->refunded_tax_amount ); ?></td>
 					</tr>
 					<?php
-					// phpcs:enable
+					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 
 				if ( $found ) {
@@ -408,7 +430,7 @@ class WC_Non_EU_Sales_Report extends WC_Admin_Report {
 						<td class="total_row"><?php echo wc_price( $total_final_tax_amount ); ?></td>
 					</tr>
 					<?php
-					// phpcs:enable
+					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 				} else {
 					?>
 					<tr>
@@ -422,3 +444,5 @@ class WC_Non_EU_Sales_Report extends WC_Admin_Report {
 		<?php
 	}
 }
+
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

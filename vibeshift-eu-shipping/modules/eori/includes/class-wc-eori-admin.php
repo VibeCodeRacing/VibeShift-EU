@@ -198,18 +198,21 @@ class WC_EORI_Admin {
 	 * @return void
 	 */
 	public static function output_meta_box() {
-		global $post, $theorder;
+		global $post;
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WooCommerce admin order global.
+		global $theorder;
 
-		if ( ! is_object( $theorder ) && $post ) {
-			$theorder = wc_get_order( $post->ID );
+		$order = ( is_object( $theorder ) ) ? $theorder : null;
+		if ( ! $order && $post ) {
+			$order = wc_get_order( $post->ID );
 		}
 
-		if ( ! $theorder ) {
+		if ( ! $order ) {
 			return;
 		}
 
-		$data    = wc_eori_get_order_validation_data( $theorder );
-		$country = wc_eori_get_destination_country_from_order( $theorder );
+		$data    = wc_eori_get_order_validation_data( $order );
+		$country = wc_eori_get_destination_country_from_order( $order );
 		?>
 		<table class="widefat striped">
 			<tbody>

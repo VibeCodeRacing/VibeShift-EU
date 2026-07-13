@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy WC_EORI / WC_EU_VAT identifiers retained for filters, meta keys, and WooCommerce report class compatibility.
+
 /**
  * WC_EU_VAT_Reports class
  */
@@ -325,4 +327,6 @@ class WC_EU_VAT_My_Account {
 	}
 }
 
-$wc_eu_vat_my_account = new WC_EU_VAT_My_Account();
+new WC_EU_VAT_My_Account();
+
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

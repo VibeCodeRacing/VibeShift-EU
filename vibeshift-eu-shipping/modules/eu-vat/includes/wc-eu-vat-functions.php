@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy WC_EORI / WC_EU_VAT identifiers retained for filters, meta keys, and WooCommerce report class compatibility.
+
 /**
  * Gets the VAT ID from order.
  *
@@ -121,3 +123,5 @@ function wc_eu_vat_maybe_add_order_note( $order, $vat_number, $is_valid ) {
 		return;
 	}
 }
+
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

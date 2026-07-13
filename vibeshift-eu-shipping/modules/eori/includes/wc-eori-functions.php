@@ -9,6 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy WC_EORI / WC_EU_VAT identifiers retained for filters, meta keys, and WooCommerce report class compatibility.
+
 /**
  * Get EU member country codes used for EORI validation scope.
  *
@@ -306,3 +308,5 @@ function wc_eori_maybe_add_order_note( $order, $result ) {
 		);
 	}
 }
+
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
