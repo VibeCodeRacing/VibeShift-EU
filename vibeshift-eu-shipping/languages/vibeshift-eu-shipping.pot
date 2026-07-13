@@ -1,0 +1,21 @@
+# Copyright (C) 2026 VibeShift
+# This file is distributed under the GNU General Public License v3.0.
+msgid ""
+msgstr ""
+"Project-Id-Version: VibeShift EU Shipping 1.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Domain: vibeshift-eu-shipping\n"
+
+#. Plugin Name of the plugin
+msgid "VibeShift EU Shipping"
+msgstr ""
+
+#. Description of the plugin
+msgid "Collect and validate EORI numbers and EU VAT numbers during WooCommerce checkout. Merges EORI validation (with Flexible Checkout Fields–compatible field keys and labeled email meta) with EU VAT number collection, validation, and B2B exemption."
+msgstr ""
