@@ -2,6 +2,12 @@
 
 All notable changes to **VibeShift EU Shipping** (`vibeshift-eu-shipping`).
 
+## 1.1.2 - 2026-07-13
+
+- Fixed a classic-checkout dead-end (found by E2E test T5 on woo.dougstate.com): with non-EU billing and EU shipping, checkout demanded an EU VAT number while the shipping VAT field had been stripped from the form by Flexible Checkout Fields, leaving the customer no visible field to fill. Both VAT fields are now re-added on a late `woocommerce_checkout_fields` pass (priority 10000), mirroring the EORI field's FCF restore.
+- Server-side VAT selection now falls back to the posted billing VAT number when the shipping VAT field is absent or empty (still validated against the shipping country), instead of silently discarding the customer's input; also removes a PHP 8 "undefined array key shipping_vat_number" warning.
+- Checkout JS falls back to toggling the billing VAT row by shipping destination when the shipping VAT row is missing from the DOM.
+
 ## 1.1.1 - 2026-07-13
 
 - Resolved remaining WordPress Plugin Check warnings: settings option prefix alignment, EU VAT report query prefetch/caching guidance, and phpcs annotations for intentional legacy `WC_*` / `wc_*` prefixes kept for data compatibility.

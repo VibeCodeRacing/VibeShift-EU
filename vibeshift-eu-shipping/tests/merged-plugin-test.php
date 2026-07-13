@@ -744,4 +744,112 @@ WC()->cart->set_needs_shipping( true );
 WC()->cart->set_cart( array() );
 $passed += 7;
 
+// 8) T5 regression: VAT fields must survive checkout-field-manager wipes (FCF),
+// and a posted billing VAT must not be silently discarded when the shipping
+// VAT field was stripped from the rendered form.
+$GLOBALS['wc_eori_vat_test_options']['woocommerce_eu_vat_number_use_shipping_country'] = 'yes';
+$vat_wiped = array(
+	'billing'  => array( 'billing_first_name' => array( 'label' => 'First name' ) ),
+	'shipping' => array( 'shipping_first_name' => array( 'label' => 'First name' ) ),
+	'order'    => array(),
+);
+$vat_restored = WC_EU_VAT_Number::add_vat_fields_to_checkout_fields( $vat_wiped );
+eori_vat_test_assert_true( isset( $vat_restored['billing']['billing_vat_number'] ), 'Late checkout_fields pass restores billing_vat_number after FCF wipe.' );
+eori_vat_test_assert_true( isset( $vat_restored['shipping']['shipping_vat_number'] ), 'Late checkout_fields pass restores shipping_vat_number after FCF wipe.' );
+eori_vat_test_assert_same( 'woocommerce_eu_vat_number_shipping', $vat_restored['shipping']['shipping_vat_number']['id'], 'Restored shipping VAT field keeps the id the checkout JS toggles.' );
+
+$GLOBALS['wc_eori_vat_test_options']['woocommerce_eu_vat_number_use_shipping_country'] = 'no';
+$vat_restored_billing_only = WC_EU_VAT_Number::add_vat_fields_to_checkout_fields( $vat_wiped );
+eori_vat_test_assert_true( isset( $vat_restored_billing_only['billing']['billing_vat_number'] ), 'Billing VAT field restored regardless of use_shipping_country.' );
+eori_vat_test_assert_true( ! isset( $vat_restored_billing_only['shipping']['shipping_vat_number'] ), 'Shipping VAT field not injected when use_shipping_country is off.' );
+$GLOBALS['wc_eori_vat_test_options']['woocommerce_eu_vat_number_use_shipping_country'] = 'yes';
+
+// Posted-VAT selection: shipping VAT wins when present; billing VAT is the
+// fallback when the shipping field is absent (stripped) or empty.
+eori_vat_test_assert_same(
+	'FR99999999999',
+	WC_EU_VAT_Number::get_posted_vat_number(
+		array(
+			'shipping_country'    => 'FR',
+			'billing_vat_number'  => 'FR19831241179',
+			'shipping_vat_number' => 'FR99999999999',
+		),
+		true,
+		true
+	),
+	'Shipping VAT number wins when the shipping field posted a value.'
+);
+eori_vat_test_assert_same(
+	'FR19831241179',
+	WC_EU_VAT_Number::get_posted_vat_number(
+		array(
+			'shipping_country'   => 'FR',
+			'billing_vat_number' => 'FR19831241179',
+		),
+		true,
+		true
+	),
+	'Billing VAT number is used when the shipping VAT key was never posted.'
+);
+eori_vat_test_assert_same(
+	'FR19831241179',
+	WC_EU_VAT_Number::get_posted_vat_number(
+		array(
+			'shipping_country'    => 'FR',
+			'billing_vat_number'  => 'FR19831241179',
+			'shipping_vat_number' => '',
+		),
+		true,
+		true
+	),
+	'Billing VAT number is used when the shipping VAT field posted empty.'
+);
+eori_vat_test_assert_same(
+	'FR19831241179',
+	WC_EU_VAT_Number::get_posted_vat_number(
+		array(
+			'shipping_country'    => 'FR',
+			'billing_vat_number'  => 'FR19831241179',
+			'shipping_vat_number' => 'FR99999999999',
+		),
+		true,
+		false
+	),
+	'Billing VAT number is used when not shipping to a different address.'
+);
+
+// Runtime: shipping VAT key entirely absent from POST (stripped field) must not
+// raise PHP warnings and must still enforce the B2B required rule.
+$GLOBALS['wc_eori_vat_test_options']['woocommerce_eu_vat_number_b2b'] = 'yes';
+$GLOBALS['wc_eori_vat_test_notices']                                  = array();
+$captured_php_warnings                                                = array();
+set_error_handler(
+	static function ( $errno, $errstr ) use ( &$captured_php_warnings ) {
+		$captured_php_warnings[] = $errstr;
+		return true;
+	},
+	E_WARNING | E_NOTICE
+);
+WC_EU_VAT_Number::validate_checkout(
+	array(
+		'billing_country'           => 'US',
+		'shipping_country'          => 'FR',
+		'ship_to_different_address' => '1',
+		'billing_vat_number'        => '',
+		'billing_postcode'          => '10001',
+		'shipping_postcode'         => '75001',
+	),
+	true
+);
+restore_error_handler();
+$absent_key_required = array_filter(
+	$GLOBALS['wc_eori_vat_test_notices'],
+	static function ( $notice ) {
+		return 'error' === $notice['type'] && false !== strpos( $notice['message'], 'required field' );
+	}
+);
+eori_vat_test_assert_true( count( $absent_key_required ) >= 1, 'Absent shipping VAT POST key still triggers required-field notice.' );
+eori_vat_test_assert_same( 0, count( $captured_php_warnings ), 'Absent shipping VAT POST key raises no PHP warnings/notices.' );
+$passed += 11;
+
 echo esc_html( sprintf( "Merged plugin tests passed (%d assertions).\n", $passed ) );

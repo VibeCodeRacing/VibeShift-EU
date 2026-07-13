@@ -4,7 +4,7 @@ Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
 WC requires at least: 10.4
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -35,6 +35,11 @@ php tests/merged-plugin-test.php
 ```
 
 == Changelog ==
+
+= 1.1.2 =
+* Fix: classic checkout dead-ended for non-EU billing with EU shipping when a checkout-field manager (e.g. Flexible Checkout Fields) stripped the shipping VAT field — VAT was required with no visible field to enter it. Both VAT fields are now restored on a late woocommerce_checkout_fields pass (same pattern as the EORI field).
+* Fix: the posted billing VAT number is no longer silently discarded when the shipping VAT field is absent or empty; validation falls back to it (still validated against the shipping country).
+* Fix: checkout JS now toggles the billing VAT row by shipping destination when the shipping VAT row is missing from the DOM, and no longer reads an absent shipping_vat_number POST key (PHP 8 warning).
 
 = 1.1.1 =
 * Fix: resolved remaining WordPress Plugin Check warnings (settings option prefix alignment, EU VAT report query prefetch/caching notes, phpcs ignore annotations for intentional legacy WC_* prefixes, and related global prefix hygiene).

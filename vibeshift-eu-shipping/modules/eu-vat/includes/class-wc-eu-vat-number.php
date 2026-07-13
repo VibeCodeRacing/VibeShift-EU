@@ -94,6 +94,7 @@ class WC_EU_VAT_Number {
 		if ( wc_eu_vat_use_shipping_country() ) {
 			add_filter( 'woocommerce_shipping_fields', array( __CLASS__, 'shipping_vat_number_field' ) );
 		}
+		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'add_vat_fields_to_checkout_fields' ), 10000 );
 		add_action( 'woocommerce_checkout_process', array( __CLASS__, 'process_checkout' ) );
 		add_action( 'woocommerce_checkout_validate_order_before_payment', array( __CLASS__, 'validate_order_before_payment' ), 10, 2 );
 		add_action( 'woocommerce_checkout_update_order_review', array( __CLASS__, 'ajax_update_checkout_totals' ) );
@@ -256,6 +257,38 @@ class WC_EU_VAT_Number {
 		);
 
 		return $fields;
+	}
+
+	/**
+	 * Ensure the VAT fields are present in the final classic checkout field list.
+	 *
+	 * Checkout-field managers (e.g. Flexible Checkout Fields) rebuild section
+	 * fields after woocommerce_billing_fields / woocommerce_shipping_fields have
+	 * already run, silently dropping the VAT inputs. Without the shipping VAT
+	 * field the checkout dead-ends: validation requires a value the customer has
+	 * no visible field for.
+	 *
+	 * @param array $checkout_fields Checkout fields grouped by section.
+	 * @return array
+	 */
+	public static function add_vat_fields_to_checkout_fields( $checkout_fields ) {
+		if ( ! is_array( $checkout_fields ) ) {
+			return $checkout_fields;
+		}
+
+		if ( ! isset( $checkout_fields['billing'] ) || ! is_array( $checkout_fields['billing'] ) ) {
+			$checkout_fields['billing'] = array();
+		}
+		$checkout_fields['billing'] = self::vat_number_field( $checkout_fields['billing'] );
+
+		if ( wc_eu_vat_use_shipping_country() ) {
+			if ( ! isset( $checkout_fields['shipping'] ) || ! is_array( $checkout_fields['shipping'] ) ) {
+				$checkout_fields['shipping'] = array();
+			}
+			$checkout_fields['shipping'] = self::shipping_vat_number_field( $checkout_fields['shipping'] );
+		}
+
+		return $checkout_fields;
 	}
 
 	/**
@@ -1310,6 +1343,30 @@ class WC_EU_VAT_Number {
 	}
 
 	/**
+	 * Pick the posted VAT number for validation.
+	 *
+	 * When validating against the shipping destination, the shipping VAT field
+	 * wins — but if that field posted nothing (checkout-field managers can strip
+	 * it from the rendered form), fall back to the billing VAT number rather
+	 * than silently discarding the value the customer could actually see.
+	 *
+	 * @param array   $data                 Checkout field data.
+	 * @param boolean $use_shipping_country Whether VAT validation follows the shipping country.
+	 * @param boolean $ship_to_different    Whether the order ships to a different address.
+	 * @return string
+	 */
+	public static function get_posted_vat_number( $data, $use_shipping_country, $ship_to_different ) {
+		$billing_vat_number  = isset( $data['billing_vat_number'] ) ? wc_clean( $data['billing_vat_number'] ) : '';
+		$shipping_vat_number = isset( $data['shipping_vat_number'] ) ? wc_clean( $data['shipping_vat_number'] ) : '';
+
+		if ( ! empty( $data['shipping_country'] ) && $use_shipping_country && $ship_to_different ) {
+			return '' !== $shipping_vat_number ? $shipping_vat_number : $billing_vat_number;
+		}
+
+		return $billing_vat_number;
+	}
+
+	/**
 	 * Validate AJAX Order Review / Checkout & add errors if any.
 	 *
 	 * @param array   $data Checkout field data.
@@ -1321,15 +1378,10 @@ class WC_EU_VAT_Number {
 		$fail_handler         = get_option( 'woocommerce_eu_vat_number_failure_handling', 'reject' );
 		$billing_country      = wc_clean( $data['billing_country'] );
 		$shipping_country     = wc_clean( ! empty( $data['shipping_country'] ) && ! empty( $data['ship_to_different_address'] ) ? $data['shipping_country'] : $data['billing_country'] );
-		$billing_vat_number   = wc_clean( $data['billing_vat_number'] );
 		$billing_postcode     = wc_clean( $data['billing_postcode'] );
 		$shipping_postcode    = wc_clean( ( ! empty( $data['ship_to_different_address'] ) && isset( $data['shipping_postcode'] ) ) ? $data['shipping_postcode'] : $data['billing_postcode'] );
 		$ship_to_different    = ! empty( $data['ship_to_different_address'] ) ? true : false;
-
-		// If using shipping country, use shipping VAT number.
-		if ( ! empty( $data['shipping_country'] ) && $use_shipping_country && $ship_to_different ) {
-			$billing_vat_number = wc_clean( $data['shipping_vat_number'] );
-		}
+		$billing_vat_number   = self::get_posted_vat_number( $data, $use_shipping_country, $ship_to_different );
 		$vat_country = $billing_country;
 		$postcode    = $billing_postcode;
 		if ( $use_shipping_country && $ship_to_different ) {
