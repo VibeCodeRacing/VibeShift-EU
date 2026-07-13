@@ -4,7 +4,7 @@ Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
 WC requires at least: 10.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -35,6 +35,10 @@ php tests/merged-plugin-test.php
 ```
 
 == Changelog ==
+
+= 1.1.1 =
+* Fix: resolved remaining WordPress Plugin Check warnings (settings option prefix alignment, EU VAT report query prefetch/caching notes, phpcs ignore annotations for intentional legacy WC_* prefixes, and related global prefix hygiene).
+* Metadata: author Vibe Code Racing (https://vibecoderacing.com); Plugin URI https://vibecoderacing.ai.
 
 = 1.1.0 =
 * Fix: closed a Blocks/Store API checkout gap where EU VAT B2B-required and invalid-VAT rejection rules were only enforced on classic checkout. Order validation now runs before Store API payment.

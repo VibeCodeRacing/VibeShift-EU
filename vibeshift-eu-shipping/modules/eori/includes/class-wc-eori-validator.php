@@ -257,7 +257,7 @@ class WC_EORI_Validator {
 			array(
 				'timeout' => self::get_http_timeout(),
 				'headers' => array(
-					'User-Agent' => 'VibeShift EU Shipping/' . ( defined( 'WC_EORI_VAT_VERSION' ) ? WC_EORI_VAT_VERSION : ( defined( 'WC_EORI_VERSION' ) ? WC_EORI_VERSION : '1.1.0' ) ),
+					'User-Agent' => 'VibeShift EU Shipping/' . ( defined( 'WC_EORI_VAT_VERSION' ) ? WC_EORI_VAT_VERSION : ( defined( 'WC_EORI_VERSION' ) ? WC_EORI_VERSION : '1.1.1' ) ),
 				),
 			)
 		);

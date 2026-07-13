@@ -2,6 +2,11 @@
 
 All notable changes to **VibeShift EU Shipping** (`vibeshift-eu-shipping`).
 
+## 1.1.1 - 2026-07-13
+
+- Resolved remaining WordPress Plugin Check warnings: settings option prefix alignment, EU VAT report query prefetch/caching guidance, and phpcs annotations for intentional legacy `WC_*` / `wc_*` prefixes kept for data compatibility.
+- Confirmed packaging metadata: author **Vibe Code Racing** (https://vibecoderacing.com), Plugin URI https://vibecoderacing.ai.
+
 ## 1.1.0 - 2026-07-13
 
 - Closed a Blocks/Store API checkout gap where EU VAT B2B-required and invalid-VAT rejection rules were only enforced on classic checkout. Order validation now runs on `woocommerce_checkout_validate_order_before_payment` before Store API payment.
