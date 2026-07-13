@@ -1,5 +1,7 @@
 # VibeShift EU Shipping
 
+**Author:** [Vibe Code Racing](https://vibecoderacing.com) · **Plugin:** [vibecoderacing.ai](https://vibecoderacing.ai)
+
 Single installable WordPress/WooCommerce plugin that merges:
 
 - **EORI** collection and registry validation (`modules/eori/`)

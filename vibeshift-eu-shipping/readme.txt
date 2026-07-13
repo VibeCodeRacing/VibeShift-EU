@@ -1,5 +1,5 @@
 === VibeShift EU Shipping ===
-Contributors: vibeshift
+Contributors: vibecoderacing
 Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
@@ -42,7 +42,7 @@ php tests/merged-plugin-test.php
 * Security: sanitized and unslashed all checkout and admin superglobal input; hardened direct file access, output escaping, and removed discouraged functions.
 * i18n: unified all text domains to `vibeshift-eu-shipping` and added the `languages/vibeshift-eu-shipping.pot` translation template.
 * Metadata: raised the checkout block `apiVersion`, updated "Tested up to" to WordPress 7.0, and resolved WordPress Plugin Check findings.
-* Rebrand: VibeShift EU Shipping (author VibeShift).
+* Rebrand: VibeShift EU Shipping (author Vibe Code Racing; Plugin URI https://vibecoderacing.ai; Author URI https://vibecoderacing.com).
 
 = 1.0.0 =
 * Initial merged release combining EORI Number and EU VAT Number into one installable plugin.

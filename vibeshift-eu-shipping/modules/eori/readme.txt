@@ -1,5 +1,5 @@
 === EORI Number ===
-Contributors: vibeshift
+Contributors: vibecoderacing
 Requires at least: 6.8
 Requires PHP: 7.4
 WC requires at least: 10.4

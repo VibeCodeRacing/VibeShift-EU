@@ -1,4 +1,4 @@
-# Copyright (C) 2026 VibeShift
+# Copyright (C) 2026 Vibe Code Racing
 # This file is distributed under the GNU General Public License v3.0.
 msgid ""
 msgstr ""
@@ -16,6 +16,18 @@ msgstr ""
 msgid "VibeShift EU Shipping"
 msgstr ""
 
+#. Plugin URI of the plugin
+msgid "https://vibecoderacing.ai"
+msgstr ""
+
 #. Description of the plugin
 msgid "Collect and validate EORI numbers and EU VAT numbers during WooCommerce checkout. Merges EORI validation (with Flexible Checkout Fields–compatible field keys and labeled email meta) with EU VAT number collection, validation, and B2B exemption."
+msgstr ""
+
+#. Author of the plugin
+msgid "Vibe Code Racing"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://vibecoderacing.com"
 msgstr ""

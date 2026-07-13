@@ -9,7 +9,7 @@ All notable changes to **VibeShift EU Shipping** (`vibeshift-eu-shipping`).
 - Sanitized and unslashed all checkout/admin superglobal input; hardened direct file access, output escaping, and removed discouraged functions.
 - Unified all text domains to `vibeshift-eu-shipping` and added the `languages/vibeshift-eu-shipping.pot` translation template.
 - Raised the checkout block `apiVersion`, updated "Tested up to" to WordPress 7.0, and resolved WordPress Plugin Check findings.
-- Rebranded as **VibeShift EU Shipping** (author VibeShift) for copyright-facing packaging.
+- Rebranded as **VibeShift EU Shipping** (author Vibe Code Racing; Plugin URI https://vibecoderacing.ai; Author URI https://vibecoderacing.com) for copyright-facing packaging.
 
 ## 1.0.0 - 2026-07-13
 
