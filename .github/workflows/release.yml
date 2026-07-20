@@ -1,0 +1,105 @@
+# Build a clean installable ZIP and attach it to a GitHub Release when a version tag is pushed.
+#
+# Tags accepted: v1.2.0 or 1.2.0 (semver). The tag (without leading v) must match:
+#   - vibeshift-eu-shipping/vibeshift-eu-shipping.php header Version
+#   - define( 'WC_EORI_VAT_VERSION', ... )
+#   - vibeshift-eu-shipping/readme.txt Stable tag
+#
+# Asset name: vibeshift-eu-shipping-{version}.zip with root folder vibeshift-eu-shipping/
+# (WordPress upload layout). The in-plugin GitHub updater
+# (vibeshift-eu-shipping/includes/class-vibeshift-github-updater.php) looks for this asset.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build ZIP and publish GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve version from tag
+        id: ver
+        run: |
+          RAW="${GITHUB_REF_NAME}"
+          VERSION="${RAW#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag must be semver (optional leading v): got ${RAW}"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${RAW}" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: ${VERSION}"
+
+      - name: Verify version numbers match in tree
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.ver.outputs.version }}"
+
+          HEADER=$(grep -E '^\s*\* Version:' vibeshift-eu-shipping/vibeshift-eu-shipping.php | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+          DEFINE=$(grep -E "define\(\s*'WC_EORI_VAT_VERSION'" vibeshift-eu-shipping/vibeshift-eu-shipping.php | head -1 | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" || true)
+          STABLE=$(grep -E '^Stable tag:' vibeshift-eu-shipping/readme.txt | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+
+          echo "tag version:         ${VERSION}"
+          echo "header Version:      ${HEADER}"
+          echo "WC_EORI_VAT_VERSION: ${DEFINE}"
+          echo "Stable tag:          ${STABLE}"
+
+          fail=0
+          for pair in "header:${HEADER}" "define:${DEFINE}" "stable:${STABLE}"; do
+            name=${pair%%:*}
+            val=${pair#*:}
+            if [ "$val" != "$VERSION" ]; then
+              echo "Mismatch: ${name}=${val} expected ${VERSION}"
+              fail=1
+            fi
+          done
+          if [ "$fail" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Build distribution ZIP
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.ver.outputs.version }}"
+          STAGE="${RUNNER_TEMP}/vibeshift-dist"
+          OUT="${GITHUB_WORKSPACE}/vibeshift-eu-shipping-${VERSION}.zip"
+
+          rm -rf "${STAGE}"
+          mkdir -p "${STAGE}"
+
+          # The plugin lives in the vibeshift-eu-shipping/ subdirectory; ship it
+          # minus dev-only tests/.
+          rsync -a --exclude='tests' vibeshift-eu-shipping/ "${STAGE}/vibeshift-eu-shipping/"
+
+          # Sanity: bootstrap file and updater present, tests excluded.
+          test -f "${STAGE}/vibeshift-eu-shipping/vibeshift-eu-shipping.php"
+          test -f "${STAGE}/vibeshift-eu-shipping/includes/class-vibeshift-github-updater.php"
+          test ! -e "${STAGE}/vibeshift-eu-shipping/tests"
+
+          (cd "${STAGE}" && zip -rq "${OUT}" vibeshift-eu-shipping)
+
+          echo "Built $(ls -lh "${OUT}" | awk '{print $5}') → ${OUT}"
+          unzip -l "${OUT}" | head -25
+
+      - name: Create GitHub Release with asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: VibeShift EU Shipping ${{ steps.ver.outputs.version }}
+          generate_release_notes: true
+          files: vibeshift-eu-shipping-${{ steps.ver.outputs.version }}.zip
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
