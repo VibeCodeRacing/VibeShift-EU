@@ -2,6 +2,10 @@
 
 All notable changes to **VibeShift EU Shipping** (`vibeshift-eu-shipping`).
 
+## 1.2.1 - 2026-07-20
+
+- Standardized developer site URIs on vibecoderacing.ai: the `Author URI` header, the update-modal author link, and README author links previously pointed at vibecoderacing.com.
+
 ## 1.2.0 - 2026-07-20
 
 - Added automatic updates from GitHub Releases: a new `Update URI` header plus an in-plugin updater (`includes/class-vibeshift-github-updater.php`) let WordPress discover release zips published on the public repo. Release checks are cached for 12 hours; a status line on the Plugins screen shows the last check result, with an admin notice when checks fail.

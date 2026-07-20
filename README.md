@@ -3,7 +3,7 @@
 WordPress / WooCommerce plugin for EU shipping compliance: **EORI** validation and **EU VAT** number collection with B2B exemption.
 
 - **Plugin Name:** VibeShift EU Shipping  
-- **Version:** 1.2.0  
+- **Version:** 1.2.1  
 - **Author:** [Vibe Code Racing](https://vibecoderacing.ai)  
 - **Plugin URI:** https://vibecoderacing.ai  
 - **Text Domain:** `vibeshift-eu-shipping`  

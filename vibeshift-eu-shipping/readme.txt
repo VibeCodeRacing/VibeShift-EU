@@ -4,7 +4,7 @@ Requires at least: 6.8
 Tested up to: 7.0
 Requires PHP: 7.4
 WC requires at least: 10.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -35,6 +35,9 @@ php tests/merged-plugin-test.php
 ```
 
 == Changelog ==
+
+= 1.2.1 =
+* Fix: standardize developer site URIs on vibecoderacing.ai (Author URI header and update-modal author link previously pointed at vibecoderacing.com).
 
 = 1.2.0 =
 * Add: automatic updates from GitHub Releases. The plugin now discovers new versions published on the public VibeCodeRacing/VibeShift-EU repository and offers them on the WordPress Plugins and Updates screens (one-click update and the per-plugin auto-update toggle both work). An update-source status line on the Plugins row shows the last check result.
