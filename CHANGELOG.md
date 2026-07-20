@@ -2,6 +2,11 @@
 
 All notable changes to **VibeShift EU Shipping** (`vibeshift-eu-shipping`).
 
+## 1.2.0 - 2026-07-20
+
+- Added automatic updates from GitHub Releases: a new `Update URI` header plus an in-plugin updater (`includes/class-vibeshift-github-updater.php`) let WordPress discover release zips published on the public repo. Release checks are cached for 12 hours; a status line on the Plugins screen shows the last check result, with an admin notice when checks fail.
+- Added a tag-triggered GitHub Actions release workflow that verifies version consistency (plugin header, `WC_EORI_VAT_VERSION`, readme stable tag) and builds/attaches the installable zip, replacing the hand-built release asset.
+
 ## 1.1.2 - 2026-07-13
 
 - Fixed a classic-checkout dead-end (found by E2E test T5 on woo.dougstate.com): with non-EU billing and EU shipping, checkout demanded an EU VAT number while the shipping VAT field had been stripped from the form by Flexible Checkout Fields, leaving the customer no visible field to fill. Both VAT fields are now re-added on a late `woocommerce_checkout_fields` pass (priority 10000), mirroring the EORI field's FCF restore.
