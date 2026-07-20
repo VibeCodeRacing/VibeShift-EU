@@ -2,6 +2,10 @@
 
 All notable changes to **VibeShift EU Shipping** (`vibeshift-eu-shipping`).
 
+## 1.2.2 - 2026-07-20
+
+- Developer site URIs now use the CamelCase brand form VibeCodeRacing.ai in the plugin header, update-modal author link, and READMEs (matching VibeSplit's brand style).
+
 ## 1.2.1 - 2026-07-20
 
 - Standardized developer site URIs on vibecoderacing.ai: the `Author URI` header, the update-modal author link, and README author links previously pointed at vibecoderacing.com.

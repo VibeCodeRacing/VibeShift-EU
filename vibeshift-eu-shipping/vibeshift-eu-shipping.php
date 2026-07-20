@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name: VibeShift EU Shipping
- * Plugin URI: https://vibecoderacing.ai
+ * Plugin URI: https://VibeCodeRacing.ai
  * Requires Plugins: woocommerce
  * Description: Collect and validate EORI numbers and EU VAT numbers during WooCommerce checkout. Merges EORI validation (with Flexible Checkout Fields–compatible field keys and labeled email meta) with EU VAT number collection, validation, and B2B exemption.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Update URI: https://github.com/VibeCodeRacing/VibeShift-EU
  * Author: Vibe Code Racing
- * Author URI: https://vibecoderacing.ai
+ * Author URI: https://VibeCodeRacing.ai
  * Text Domain: vibeshift-eu-shipping
  * Domain Path: /languages
  * Requires at least: 6.8
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WC_EORI_VAT_VERSION', '1.2.1' );
+define( 'WC_EORI_VAT_VERSION', '1.2.2' );
 define( 'WC_EORI_VAT_FILE', __FILE__ );
 define( 'WC_EORI_VAT_ABSPATH', __DIR__ . '/' );
 // plugin_basename() is unavailable under the CLI test harness; the fallback
