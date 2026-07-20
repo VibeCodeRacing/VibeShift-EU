@@ -7,7 +7,7 @@
  * Version: 1.2.0
  * Update URI: https://github.com/VibeCodeRacing/VibeShift-EU
  * Author: Vibe Code Racing
- * Author URI: https://vibecoderacing.com
+ * Author URI: https://vibecoderacing.ai
  * Text Domain: vibeshift-eu-shipping
  * Domain Path: /languages
  * Requires at least: 6.8

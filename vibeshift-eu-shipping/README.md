@@ -1,6 +1,6 @@
 # VibeShift EU Shipping
 
-**Author:** [Vibe Code Racing](https://vibecoderacing.com) · **Plugin:** [vibecoderacing.ai](https://vibecoderacing.ai)
+**Author:** [Vibe Code Racing](https://vibecoderacing.ai) · **Plugin:** [vibecoderacing.ai](https://vibecoderacing.ai)
 
 Single installable WordPress/WooCommerce plugin that merges:
 

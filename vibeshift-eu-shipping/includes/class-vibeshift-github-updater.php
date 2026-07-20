@@ -165,7 +165,7 @@ class Vibeshift_GitHub_Updater {
 			'name'          => 'VibeShift EU Shipping',
 			'slug'          => self::SLUG,
 			'version'       => $remote['version'],
-			'author'        => '<a href="https://vibecoderacing.com">Vibe Code Racing</a>',
+			'author'        => '<a href="https://vibecoderacing.ai">Vibe Code Racing</a>',
 			'homepage'      => 'https://github.com/' . self::REPO,
 			'requires'      => '6.8',
 			'requires_php'  => '7.4',
